@@ -125,7 +125,7 @@ void    at93c86read(uint16_t ax){
         }eep;
 
                 
-        for(byte al=0; al < ax ;al++){
+        for(byte al=0; al < ax ;al++,i++){
             digitalWrite(SS,HIGH);
                 
             eep.comm= i;                            // READ命令　+　アドレス
@@ -133,29 +133,40 @@ void    at93c86read(uint16_t ax){
             eep.addr.ch |= 0x18;
             eep.comm= eep.comm << 3;
             
-            for(i=0; i<13;i++){
-                digitalWrite(SCK,LOW);
+            for(byte k=0; k<13; k++){
                 val= (eep.comm & 0x8000)? 1:0;
                 eep.comm= eep.comm << 1;
                 digitalWrite(MOSI,val);
-                clkWait();
-                digitalWrite(SCK,HIGH);    
+                sck();
             }
-
-            
-            for(i=0; i<16;i++,red<<1){
-                digitalWrite(SCK,LOW);
-                clkWait();
-                digitalWrite(SCK,HIGH);
-                red= (digitalRead(MISO))? 0x0001:0x0000;
-                clkWait();
-                    
+            digitalWrite(SCK,LOW);                  //SCK ADJST
+            red=0x0000;
+            for(byte j=0; j<16;j++){
+                sck();
+                if(digitalRead(MISO)==1) red |= 0x0001;
+                red=red<<1;
+                digitalWrite(SCK,LOW);              //SCK ADJST
             }
-            digitalWrite(SCK,LOW);
             digitalWrite(SS,LOW);
+            
+            Serial.print(i); Serial.print("addr(H) = ");
+            Serial.println(byte(red>>8));
+            Serial.print(i); Serial.print("addr(L) = ");      
+            Serial.println(byte(red));
         }
 }
 #endif
+/***********************************************************************************************************************
+* Function Name: 
+* Description  : 
+* Arguments    : Code
+* Return Value : None
+***********************************************************************************************************************/
+void    sck(){
+        digitalWrite(SCK,HIGH);
+        digitalWrite(SCK,LOW);
+}
+
 /***********************************************************************************************************************
 * Function Name: 
 * Description  : 
