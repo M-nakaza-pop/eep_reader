@@ -112,9 +112,9 @@ union   {
 void    at93c86read(uint16_t ax){
         
         byte    val;
-        byte    i=4;
+        uint16_t    i=0;
         uint16_t    bx=0;
-        uint16_t    red;
+        uint32_t    red;
         
         union   {
             uint16_t   comm;         
@@ -125,7 +125,7 @@ void    at93c86read(uint16_t ax){
         }eep;
 
                 
-        for(byte al=0; al < ax ;al++,i++){
+        for(uint16_t al=0; al < ax ;al++,i++){
             digitalWrite(SS,HIGH);
                 
             eep.comm= i;                            // READ命令　+　アドレス
@@ -148,11 +148,11 @@ void    at93c86read(uint16_t ax){
                 digitalWrite(SCK,LOW);              //SCK ADJST
             }
             digitalWrite(SS,LOW);
-            
+            red=red>>1;
             Serial.print(i); Serial.print("addr(H) = ");
-            Serial.println(byte(red>>8));
+            Serial.println(highByte(red),HEX);
             Serial.print(i); Serial.print("addr(L) = ");      
-            Serial.println(byte(red));
+            Serial.println(lowByte(red),HEX);
         }
 }
 #endif
@@ -197,12 +197,12 @@ void    clkWait(){
 void loop() {
 
     //ewenComm();
-    at93c86read(1);
+    at93c86read(20);
     //writeDeta(20, 30);
     //readDeta(2);
     delay(500);
-    //while(1){       
-    //}
+    while(1){       
+    }
 }
 /***********************************************************************************************************************
 * Function Name: 
